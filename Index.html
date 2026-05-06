@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cricket Auction System</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    height:100vh;
+    overflow:hidden;
+    padding:8px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:8px;
+    font-size:28px;
+}
+
+.upload-box{
+    margin-bottom:8px;
+}
+
+.upload-box input{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:#1e293b;
+    color:white;
+    font-size:14px;
+}
+
+.main-layout{
+    display:grid;
+    grid-template-columns:1fr 2.8fr 1fr;
+    gap:8px;
+    height:calc(100vh - 95px);
+}
+
+.side-panel{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.team-card{
+    background:#1e293b;
+    border-radius:12px;
+    padding:8px;
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.team-card:hover{
+    background:#334155;
+    transform:scale(1.02);
+}
+
+.team-card h3{
+    font-size:20px;
+}
+
+.total{
+    font-size:14px;
+    color:#cbd5e1;
+    margin-top:4px;
+}
+
+.spent{
+    color:#ef4444;
+    font-size:24px;
+    font-weight:bold;
+    margin-top:5px;
+}
+
+.remaining{
+    color:#22c55e;
+    font-size:24px;
+    font-weight:bold;
+    margin-top:5px;
+}
+
+.player-panel{
+    background:#1e293b;
+    border-radius:12px;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.image-container{
+    width:100%;
+    position:relative;
+}
+
+.player-panel img{
+    width:100%;
+    height:60vh;
+    object-fit:contain;
+    border-radius:10px;
+    background:black;
+}
+
+.image-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    border:none;
+    background:rgba(0,0,0,0.6);
+    color:white;
+    font-size:24px;
+    padding:10px 14px;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+.prev-btn{
+    left:10px;
+}
+
+.next-btn{
+    right:10px;
+}
+
+.player-name{
+    margin-top:8px;
+    font-size:30px;
+    font-weight:bold;
+    text-align:center;
+}
+
+.sold-status{
+    margin-top:6px;
+    font-size:22px;
+    color:#22c55e;
+    font-weight:bold;
+    text-align:center;
+    min-height:30px;
+}
+
+.sell-box{
+    width:100%;
+    margin-top:8px;
+}
+
+.sell-box select,
+.sell-box input{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:white;
+    font-size:16px;
+}
+
+.sell-btn{
+    width:100%;
+    margin-top:8px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.sell-btn:hover{
+    background:#1d4ed8;
+}
+
+.modal{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.modal-content{
+    background:#1e293b;
+    width:400px;
+    max-height:80vh;
+    overflow:auto;
+    padding:20px;
+    border-radius:14px;
+}
+
+.modal-content h2{
+    margin-bottom:15px;
+    text-align:center;
+}
+
+.modal-content ul{
+    padding-left:20px;
+    line-height:2;
+    font-size:18px;
+}
+
+.close-btn{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+@media(max-width:1200px){
+
+    body{
+        overflow:auto;
+        height:auto;
+    }
+
+    .main-layout{
+        grid-template-columns:1fr;
+        height:auto;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🏏 Cricket Auction System</h1>
+
+<div class="upload-box">
+    <input type="file"
+           id="folderInput"
+           webkitdirectory
+           multiple>
+</div>
+
+<div class="main-layout">
+
+    <!-- LEFT TEAMS -->
+
+    <div class="side-panel" id="leftTeams"></div>
+
+    <!-- CENTER PLAYER -->
+
+    <div class="player-panel">
+
+        <div class="image-container">
+
+            <button class="image-nav prev-btn"
+                    onclick="prevPlayer()">
+                ❮
+            </button>
+
+            <img id="playerImage" src="">
+
+            <button class="image-nav next-btn"
+                    onclick="nextPlayer()">
+                ❯
+            </button>
+
+        </div>
+
+        <div class="player-name"
+             id="playerName">
+            No Player Selected
+        </div>
+
+        <div class="sold-status"
+             id="soldStatus"></div>
+
+        <!-- SELL OPTION -->
+
+        <div class="sell-box">
+
+            <select id="teamSelect">
+
+                <option value="">
+                    Select Team
+                </option>
+
+            </select>
+
+            <input type="number"
+                   id="priceInput"
+                   placeholder="Enter Sold Price">
+
+            <button class="sell-btn"
+                    onclick="sellPlayer()">
+                SELL PLAYER
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT TEAMS -->
+
+    <div class="side-panel" id="rightTeams"></div>
+
+</div>
+
+<!-- POPUP -->
+
+<div class="modal"
+     id="teamModal">
+
+    <div class="modal-content">
+
+        <h2 id="modalTitle"></h2>
+
+        <ul id="playerList"></ul>
+
+        <button class="close-btn"
+                onclick="closeModal()">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+const TOTAL_BUDGET = 2500;
+
+const teams = [
+
+    "Team 1",
+    "Team 2",
+    "Team 3",
+    "Team 4",
+    "Team 5",
+    "Team 6",
+    "Team 7",
+    "Team 8"
+
+];
+
+let teamData = {};
+
+teams.forEach(team => {
+
+    teamData[team] = {
+
+        spent:0,
+        players:[]
+
+    };
+
+});
+
+const leftTeams =
+    document.getElementById("leftTeams");
+
+const rightTeams =
+    document.getElementById("rightTeams");
+
+const teamSelect =
+    document.getElementById("teamSelect");
+
+teams.forEach(team => {
+
+    const option =
+        document.createElement("option");
+
+    option.value = team;
+
+    option.innerText = team;
+
+    teamSelect.appendChild(option);
+
+});
+
+function createTeamCard(team){
+
+    const spent =
+        teamData[team].spent;
+
+    const remaining =
+        TOTAL_BUDGET - spent;
+
+    return `
+
+        <div class="team-card"
+             onclick="showPlayers('${team}')">
+
+            <h3>${team}</h3>
+
+            <div class="total">
+                Budget ₹${TOTAL_BUDGET}
+            </div>
+
+            <div class="spent">
+                ₹${spent}
+            </div>
+
+            <div class="remaining">
+                ₹${remaining}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+function renderTeams(){
+
+    leftTeams.innerHTML = "";
+    rightTeams.innerHTML = "";
+
+    teams.forEach((team,index)=>{
+
+        if(index < 4){
+
+            leftTeams.innerHTML +=
+                createTeamCard(team);
+
+        }else{
+
+            rightTeams.innerHTML +=
+                createTeamCard(team);
+
+        }
+
+    });
+
+}
+
+renderTeams();
+
+function showPlayers(team){
+
+    document.getElementById("teamModal")
+        .style.display = "flex";
+
+    document.getElementById("modalTitle")
+        .innerText = `${team} Players`;
+
+    const list =
+        document.getElementById("playerList");
+
+    list.innerHTML = "";
+
+    if(teamData[team].players.length === 0){
+
+        list.innerHTML =
+            "<li>No Players Bought</li>";
+
+        return;
+
+    }
+
+    teamData[team].players.forEach(player => {
+
+        list.innerHTML += `
+
+            <li>
+                ${player.name}
+                - ₹${player.price}
+            </li>
+
+        `;
+
+    });
+
+}
+
+function closeModal(){
+
+    document.getElementById("teamModal")
+        .style.display = "none";
+
+}
+
+let players = [];
+let currentIndex = 0;
+
+const folderInput =
+    document.getElementById("folderInput");
+
+const playerImage =
+    document.getElementById("playerImage");
+
+const playerName =
+    document.getElementById("playerName");
+
+const soldStatus =
+    document.getElementById("soldStatus");
+
+folderInput.addEventListener("change",(e)=>{
+
+    const files =
+        Array.from(e.target.files);
+
+    players = files.filter(file =>
+        file.type.startsWith("image/")
+    );
+
+    currentIndex = 0;
+
+    if(players.length > 0){
+
+        showPlayer();
+
+    }
+
+});
+
+function showPlayer(){
+
+    const file =
+        players[currentIndex];
+
+    const reader =
+        new FileReader();
+
+    reader.onload = function(e){
+
+        playerImage.src =
+            e.target.result;
+
+    }
+
+    reader.readAsDataURL(file);
+
+    playerName.innerText =
+        file.name;
+
+    if(file.sold){
+
+        soldStatus.innerHTML =
+            `✅ SOLD to ${file.team}
+             for ₹${file.price}`;
+
+    }else{
+
+        soldStatus.innerHTML = "";
+
+    }
+
+}
+
+function nextPlayer(){
+
+    if(players.length === 0)
+        return;
+
+    currentIndex++;
+
+    if(currentIndex >= players.length){
+
+        currentIndex = 0;
+
+    }
+
+    showPlayer();
+
+}
+
+function prevPlayer(){
+
+    if(players.length === 0)
+        return;
+
+    currentIndex--;
+
+    if(currentIndex < 0){
+
+        currentIndex =
+            players.length - 1;
+
+    }
+
+    showPlayer();
+
+}
+
+function sellPlayer(){
+
+    if(players.length === 0)
+        return;
+
+    const team =
+        teamSelect.value;
+
+    const price =
+        parseInt(
+            document.getElementById(
+                "priceInput"
+            ).value
+        );
+
+    if(!team || !price){
+
+        alert(
+            "Select team and enter price"
+        );
+
+        return;
+
+    }
+
+    const remaining =
+        TOTAL_BUDGET -
+        teamData[team].spent;
+
+    if(price > remaining){
+
+        alert("Not enough budget!");
+
+        return;
+
+    }
+
+    const player =
+        players[currentIndex];
+
+    if(player.sold){
+
+        alert("Player already sold");
+
+        return;
+
+    }
+
+    player.sold = true;
+
+    player.team = team;
+
+    player.price = price;
+
+    teamData[team].spent += price;
+
+    teamData[team].players.push({
+
+        name:player.name,
+        price:price
+
+    });
+
+    renderTeams();
+
+    showPlayer();
+
+    alert("Player Sold Successfully!");
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.key === "ArrowRight"){
+
+        nextPlayer();
+
+    }
+
+    if(e.key === "ArrowLeft"){
+
+        prevPlayer();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
